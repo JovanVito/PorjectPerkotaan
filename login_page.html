@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem CCTV</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page-body">
+    <div class="auth-container">
+        <form id="loginForm"> <h2>Login Akun</h2>
+            <div class="auth-logo-container">
+                <h3>Sistem Pemantau CCTV</h3>
+            </div>
+            <div class="input-group">
+                <label for="username">Email atau Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <p id="loginError" class="error-message" style="display:none; color:red; text-align:center; margin-bottom:10px;"></p> <button type="submit" class="auth-button">Login</button>
+            <div class="auth-links">
+                <a href="#">Lupa Password?</a>
+                <p>Belum punya akun? <a href="signup_page.html">Sign Up di sini</a></p>
+            </div>
+        </form>
+    </div>
+    <script src="script.js" defer></script> </body>
+</html>

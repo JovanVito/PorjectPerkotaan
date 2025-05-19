@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Akun - Sistem CCTV</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="user-info">
+            <img src="placeholder_avatar.png" alt="Avatar" class="avatar">
+            <span>Welcome, <span id="loggedInUserNameHeader">Nama Pengguna</span></span>
+        </div>
+        <nav>
+            <a href="dashboard_page.html">Dashboard</a>
+            <a href="cctv_page.html">CCTV</a>
+            <a href="#">Riwayat Kecelakaan</a>
+            <a href="pengaturan_page.html" class="active">Pengaturan</a>
+        </nav>
+    </header>
+
+    <main class="settings-main">
+        <h2>Pengaturan Akun</h2>
+        <div class="account-info-container">
+            <h3>Informasi Akun Anda</h3>
+            <div class="info-item">
+                <span class="info-label">Nama Lengkap:</span>
+                <span id="accountFullName" class="info-value">Memuat...</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Username:</span>
+                <span id="accountUsername" class="info-value">Memuat...</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span id="accountEmail" class="info-value">Memuat...</span>
+            </div>
+            <button id="logoutButton" class="auth-button logout-button">Logout</button>
+        </div>
+    </main>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

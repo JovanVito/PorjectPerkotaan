@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Kecelakaan</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="user-info">
+            <img src="placeholder_avatar.png" alt="Avatar" class="avatar">
+            <span>Welcome, <span id="loggedInUserNameHeader">Nama Pengguna</span></span>
+        </div>
+        <nav>
+            <a href="dashboard_page.html">Dashboard</a>
+            <a href="cctv_page.html">CCTV</a>
+            <a href="riwayat_kecelakaan.html" class="active">Riwayat Kecelakaan</a>
+            <a href="pengaturan_page.html">Pengaturan</a>
+        </nav>
+    </header>
+    <main class="accident-history-main">
+        <h2>Riwayat Kecelakaan di Jl. Scientia Boulevard</h2>
+        <canvas id="accidentChart" width="400" height="200"></canvas>
+
+        <script>
+            // Data dummy riwayat kecelakaan
+            const accidentData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                datasets: [{
+                    label: 'Jumlah Kecelakaan',
+                    data: [5, 8, 3, 7, 10, 6, 4, 9, 7, 8, 6, 5], // Contoh data jumlah kecelakaan per bulan
+                    backgroundColor: 'rgba(231, 76, 60, 0.5)', // Warna merah transparan
+                    borderColor: 'rgba(231, 76, 60, 1)', // Warna merah
+                    borderWidth: 1
+                }]
+            };
+
+            // Konfigurasi chart
+            const chartConfig = {
+                type: 'bar', // Jenis chart: bar, line, dll.
+                data: accidentData,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            };
+
+            // Membuat chart
+            try {
+                const accidentChart = new Chart(
+                    document.getElementById('accidentChart'),
+                    chartConfig
+                );
+            } catch (error) {
+                console.error("Error membuat chart:", error);
+                document.getElementById('accidentChart').innerHTML = "<p>Gagal memuat grafik. Silakan coba lagi nanti.</p>";
+            }
+        </script>
+    </main>
+</body>
+</html>

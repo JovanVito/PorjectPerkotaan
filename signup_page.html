@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Sistem CCTV</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page-body">
+    <div class="auth-container">
+        <form id="signupForm"> <h2>Buat Akun Baru</h2>
+            <div class="auth-logo-container">
+                 <h3>Sistem Pemantau CCTV</h3>
+            </div>
+            <div class="input-group">
+                <label for="fullname">Nama Lengkap</label>
+                <input type="text" id="fullname" name="fullname" required>
+            </div>
+            <div class="input-group">
+                <label for="new-username">Username</label>
+                <input type="text" id="new-username" name="new_username" required>
+            </div>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="new-password">Password</label>
+                <input type="password" id="new-password" name="new_password" required>
+            </div>
+            <div class="input-group">
+                <label for="confirm-password">Konfirmasi Password</label>
+                <input type="password" id="confirm-password" name="confirm_password" required>
+            </div>
+            <p id="signupError" class="error-message" style="display:none; color:red; text-align:center; margin-bottom:10px;"></p> <p id="signupSuccess" class="success-message" style="display:none; color:green; text-align:center; margin-bottom:10px;"></p> <button type="submit" class="auth-button">Sign Up</button>
+            <div class="auth-links">
+                <p>Sudah punya akun? <a href="login_page.html">Login di sini</a></p>
+            </div>
+        </form>
+    </div>
+    <script src="script.js" defer></script> </body>
+</html>
