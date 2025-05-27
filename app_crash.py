@@ -25,16 +25,16 @@ WARNING_COLOR = (0, 165, 255)
 ACCIDENT_COLOR = (0, 0, 255)
 
 CRASH_PARAMS = {
-    'MIN_CONFIDENCE': 0.15,
-    'MIN_TRACK_FRAMES': 5,
-    'SMOOTHING_HISTORY': 30,
-    'ACCIDENT_THRESHOLD': 5,
-    'COLLISION_IOU_THRESH': 0.1,
-    'MAX_MISSED_FRAMES': 10,
-    'AR_CHANGE_THRESH': 1.8,
-    'ANGLE_CHANGE_THRESH': 120,
-    'SPEED_CHANGE_THRESH': 15,
-    'MIN_MOVEMENT': 5,
+    'MIN_CONFIDENCE': 0.15,     # Min. confidence YOLO untuk deteksi objek (lebih rendah untuk crash).
+    'MIN_TRACK_FRAMES': 5,      # Min. frame agar track objek valid.
+    'SMOOTHING_HISTORY': 30,    # Jml. frame untuk menghaluskan bounding box.
+    'ACCIDENT_THRESHOLD': 5,    # Jml. frame abnormal berturut-turut untuk deteksi insiden.
+    'COLLISION_IOU_THRESH': 0.1, # Ambang IoU untuk deteksi tabrakan antar bounding box.
+    'MAX_MISSED_FRAMES': 10,    # Max. frame objek boleh hilang sebelum track dihapus.
+    'AR_CHANGE_THRESH': 1.8,    # Ambang perubahan aspek rasio (lebar/tinggi) untuk deteksi abnormal.
+    'ANGLE_CHANGE_THRESH': 120, # Ambang perubahan sudut pergerakan (derajat) untuk deteksi abnormal.
+    'SPEED_CHANGE_THRESH': 15,  # Ambang perubahan kecepatan (pixel/frame) untuk deteksi abnormal.
+    'MIN_MOVEMENT': 5,          # Min. gerakan (pixel) agar objek dianggap bergerak (untuk analisis sudut/kecepatan).
 }
 
 try:

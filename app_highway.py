@@ -23,16 +23,16 @@ WARNING_COLOR = (0, 165, 255)
 ACCIDENT_COLOR = (0, 0, 255)
 
 HIGHWAY_PARAMS = {
-    'MIN_CONFIDENCE': 0.25,
-    'MIN_TRACK_FRAMES': 3,
-    'SMOOTHING_HISTORY': 25,
-    'ACCIDENT_THRESHOLD': 10,
+    'MIN_CONFIDENCE': 0.25,     # Min. confidence YOLO untuk deteksi objek (lebih rendah untuk crash).
+    'MIN_TRACK_FRAMES': 3,      # Min. frame agar track objek valid.
+    'SMOOTHING_HISTORY': 25,    # Jml. frame untuk menghaluskan bounding box.
+    'ACCIDENT_THRESHOLD': 10,   # Jml. frame abnormal berturut-turut untuk deteksi insiden.
     'COLLISION_IOU_THRESH': 0.9, # Disesuaikan dari 0.8 pada log user, 0.2 mungkin lebih masuk akal untuk highway
     'MAX_MISSED_FRAMES': 15,    # Disesuaikan dari 55 pada log user, 15 mungkin lebih masuk akal
-    'AR_CHANGE_THRESH': 2.0,
-    'ANGLE_CHANGE_THRESH': 100,
-    'SPEED_CHANGE_THRESH': 20,
-    'MIN_MOVEMENT': 7,
+    'AR_CHANGE_THRESH': 2.0,    # Ambang perubahan aspek rasio (lebar/tinggi) untuk deteksi abnormal.
+    'ANGLE_CHANGE_THRESH': 100, # Ambang perubahan sudut pergerakan (derajat) untuk deteksi abnormal.
+    'SPEED_CHANGE_THRESH': 20,  # Ambang perubahan kecepatan (pixel/frame) untuk deteksi abnormal.
+    'MIN_MOVEMENT': 7,          # Min. gerakan (pixel) agar objek dianggap bergerak (untuk analisis sudut/kecepatan).
 }
 
 try:
@@ -48,11 +48,11 @@ def smooth_boxes(cur_box, prev_box_list, alpha=0.6):
     weights = np.linspace(0.2, 1.0, len(prev_box_list))
     weights /= weights.sum()
     weighted_sum = np.zeros_like(cur_box, dtype=float)
-    for box_item, weight in zip(prev_box_list, weights): # Mengganti nama variabel 'box' menjadi 'box_item'
+    for box_item, weight in zip(prev_box_list, weights):
         weighted_sum += np.array(box_item, dtype=float) * weight
     return alpha * np.array(cur_box, dtype=float) + (1 - alpha) * weighted_sum
 
-def aspect_ratio(box_coords): # Mengganti nama parameter 'box' menjadi 'box_coords'
+def aspect_ratio(box_coords):
     x1, y1, x2, y2 = box_coords
     w, h = max(1, x2 - x1), max(1, y2 - y1)
     return min(max(w / h if h > 0 else w, 0.1), 10)

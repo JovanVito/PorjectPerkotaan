@@ -1,31 +1,19 @@
-# PYTHONPATH/telegram_notifier.py
 import asyncio
 import telegram
 import os
-from dotenv import load_dotenv # Pastikan ini ada
+from dotenv import load_dotenv
 import time
 
-# --- PERUBAHAN DIMULAI DI SINI ---
-# Secara eksplisit tentukan path ke file .env
-# Ini mengasumsikan telegram_notifier.py ada di dalam subfolder (seperti PYTHONPATH)
-# dan .env ada satu level di atasnya (di folder utama proyek).
-# __file__ adalah path ke telegram_notifier.py
-# os.path.dirname(__file__) adalah path ke folder PYTHONPATH
-# os.path.join(os.path.dirname(__file__), '..') adalah path ke folder utama proyek
-# os.path.abspath() untuk mendapatkan path absolut yang bersih
+
 dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
 print(f"[DEBUG telegram_notifier] Mencoba memuat .env dari path: {dotenv_path}")
 
-# Muat variabel dari file .env yang path-nya sudah ditentukan
 loaded_successfully = load_dotenv(dotenv_path=dotenv_path)
 print(f"[DEBUG telegram_notifier] load_dotenv() berhasil dijalankan: {loaded_successfully}")
-# --- PERUBAHAN SELESAI DI SINI ---
 
-# Ambil konfigurasi dari environment variables
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-# ... (sisa kode telegram_notifier.py tetap sama seperti sebelumnya) ...
 
 async def send_telegram_message_async(message_text: str):
     """
@@ -64,8 +52,8 @@ def send_telegram_notification(message_text: str):
 
 if __name__ == '__main__':
     print("Menguji pengiriman pesan Telegram dari PYTHONPATH/telegram_notifier.py...")
-    print(f"Token Loaded (dari os.getenv): {TELEGRAM_BOT_TOKEN is not None}") # Ini akan True jika .env berhasil dimuat & variabel ada
-    print(f"Chat ID Loaded (dari os.getenv): {TELEGRAM_CHAT_ID is not None}") # Ini akan True jika .env berhasil dimuat & variabel ada
+    print(f"Token Loaded (dari os.getenv): {TELEGRAM_BOT_TOKEN is not None}")
+    print(f"Chat ID Loaded (dari os.getenv): {TELEGRAM_CHAT_ID is not None}") 
 
     if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
         current_time = time.strftime('%Y-%m-%d %H:%M:%S')
