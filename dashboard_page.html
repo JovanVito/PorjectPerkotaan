@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+    <title>Dashboard Pemantauan CCTV</title>
+    <link rel="stylesheet" href="style.css"> </head>
 <body>
     <header>
         <div class="user-info">
@@ -13,51 +12,26 @@
             <span>Welcome, <span id="loggedInUserNameHeader">Nama Pengguna</span></span>
         </div>
         <nav>
-    <a href="dashboard_page.html">Dashboard</a>
-    <a href="cctv_page.html">CCTV</a>
-    <a href="riwayat_kecelakaan.html">Riwayat Kecelakaan</a>
-    <a href="pengaturan_page.html">Pengaturan</a>
-</nav>
+            <a href="dashboard_page.html" class="active">Dashboard</a>
+            <a href="cctv_page.html">CCTV</a> <a href="riwayat_kecelakaan.html">Riwayat Kecelakaan</a> <a href="pengaturan_page.html">Pengaturan</a> </nav>
     </header>
     <main class="dashboard-main">
-        <h2>Pantauan CCTV</h2>
+        <h2>Pantauan CCTV Hasil Pemrosesan</h2>
         <div class="cctv-grid">
             <div class="cctv-box">
-                <img src="https://www.suarasurabaya.net/wp-content/uploads/2017/09/kk192938_clip10.jpg" alt="CCTV 1">
+                <img src="http://localhost:5000/video_feed_crash" alt="Live Crash Detection Feed" width="100%" style="background-color: #000; min-height: 240px;">
                 <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
+                    Analisis Video Kecelakaan (crash.mp4 via Port 5000)
                 </div>
             </div>
+
             <div class="cctv-box">
-                <img src="https://www.suarasurabaya.net/wp-content/uploads/2017/09/kk192938_clip10.jpg" alt="CCTV 2">
+                <img src="http://localhost:5001/video_feed_highway" alt="Live Highway Monitoring Feed" width="100%" style="background-color: #000; min-height: 240px;">
                 <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
+                    Analisis Video Jalan Raya (highway.mp4 via Port 5001)
                 </div>
             </div>
-            <div class="cctv-box">
-                <img src="https://www.suarasurabaya.net/wp-content/uploads/2017/09/kk192938_clip10.jpg" alt="CCTV 3">
-                <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
-                </div>
-            </div>
-            <div class="cctv-box unavailable">
-                <div class="unavailable-text">CCTV Tidak Tersedia</div>
-                <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
-                </div>
-            </div>
-            <div class="cctv-box error">
-                <div class="error-text">CCTV Sedang Gangguan</div>
-                <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
-                </div>
-            </div>
-            <div class="cctv-box not-detected">
-                <div class="not-detected-text">Kamera CCTV Tidak Terdeteksi</div>
-                <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
-                </div>
-            </div>
+
             </div>
     </main>
     <script src="script.js" defer></script>

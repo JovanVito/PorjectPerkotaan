@@ -1,0 +1,265 @@
+import cv2
+import numpy as np
+from ultralytics import YOLO
+from collections import defaultdict, deque
+import math
+
+model = YOLO('yolov8m.pt')
+video_path = 'crash.mp4'
+cap = cv2.VideoCapture(video_path)
+assert cap.isOpened(), "Error: Cannot open video file"
+
+frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+fps = cap.get(cv2.CAP_PROP_FPS)
+middle_line_y = int(frame_height * 2/5)
+
+VEHICLE_CLASSES = [2, 3, 5, 7]
+MIN_CONFIDENCE = 0.35             
+MIN_TRACK_FRAMES = 5            
+SMOOTHING_HISTORY = 45          
+ACCIDENT_THRESHOLD = 7             
+COLLISION_IOU_THRESH = 3.20        
+SPEED_DROP_THRESH = 7.0            
+MAX_MISSED_FRAMES = 5 
+
+# Accident detection thresholds (tuned)
+AR_CHANGE_THRESH = 1.8  # Aspect ratio change threshold
+ANGLE_CHANGE_THRESH = 120  # Degrees for sudden direction change
+SPEED_CHANGE_THRESH = 15  # Pixels/frame for sudden speed change
+MIN_MOVEMENT = 5  
+
+LINE_COLOR = (0, 255, 255)
+TEXT_COLOR = (0, 0, 255)
+BOX_COLOR = (0, 255, 0)
+WARNING_COLOR = (0, 165, 255)
+ACCIDENT_COLOR = (0, 0, 255)
+
+vehicle_count = 0                  
+accident_count = 0                  
+counted_ids = set()                 
+counted_accidents = set()           
+track_history = defaultdict(lambda: deque(maxlen=30))
+track_frames = defaultdict(int)     
+prev_boxes = defaultdict(lambda: deque(maxlen=SMOOTHING_HISTORY))  
+abnormal_count = defaultdict(int)   
+accident_ids = set()                
+collision_pairs = set()             
+active_tracks = {}
+missed_frames = defaultdict(int)
+cooldown_frames = defaultdict(int)
+
+def smooth_boxes(cur_box, prev_box_list, alpha=0.6):
+    """Enhanced smoothing with weighted moving average"""
+    if not prev_box_list:
+        return cur_box
+    
+    weights = np.linspace(0.2, 1.0, len(prev_box_list))
+    weights /= weights.sum()
+    
+    weighted_sum = np.zeros_like(cur_box)
+    for box, weight in zip(prev_box_list, weights):
+        weighted_sum += box * weight
+        
+    return alpha * cur_box + (1 - alpha) * weighted_sum
+
+def aspect_ratio(box):
+    """More robust aspect ratio calculation"""
+    x1, y1, x2, y2 = box
+    w, h = max(1, x2 - x1), max(1, y2 - y1)
+    return min(max(w / h, 0.1), 10)
+
+def calculate_iou(box1, box2):
+    """Improved IoU calculation with edge handling"""
+    x_left = max(box1[0], box2[0])
+    y_top = max(box1[1], box2[1])
+    x_right = min(box1[2], box2[2])
+    y_bottom = min(box1[3], box2[3])
+    
+    if x_right < x_left or y_bottom < y_top:
+        return 0.0
+    
+    intersection_area = (x_right - x_left) * (y_bottom - y_top)
+    box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
+    
+    union_area = box1_area + box2_area - intersection_area
+    return intersection_area / union_area if union_area else 0
+
+def check_abnormal_movement(tid, current_box, prev_boxes_list):
+    """More reliable abnormal movement detection"""
+    if len(prev_boxes_list) < 3:
+        return False
+    
+    boxes_to_analyze = list(prev_boxes_list)[-3:] + [current_box]
+    
+    ar_changes = []
+    for i in range(1, len(boxes_to_analyze)):
+        ar_prev = aspect_ratio(boxes_to_analyze[i-1])
+        ar_curr = aspect_ratio(boxes_to_analyze[i])
+        ar_changes.append(abs(ar_curr - ar_prev))
+    
+    centers = [( (b[0]+b[2])//2, (b[1]+b[3])//2 ) for b in boxes_to_analyze]
+    angle_changes = []
+    speed_changes = []
+    
+    for i in range(1, len(centers)):
+        vec_curr = (centers[i][0] - centers[i-1][0], centers[i][1] - centers[i-1][1])
+        vec_prev = (centers[i-1][0] - centers[i-2][0], centers[i-1][1] - centers[i-2][1]) if i > 1 else vec_curr
+        
+        if math.hypot(*vec_curr) > MIN_MOVEMENT and math.hypot(*vec_prev) > MIN_MOVEMENT:
+            dot_product = vec_curr[0]*vec_prev[0] + vec_curr[1]*vec_prev[1]
+            magnitude_product = math.hypot(*vec_curr) * math.hypot(*vec_prev)
+            angle = math.degrees(math.acos(min(max(dot_product/magnitude_product, -1), 1)))
+            angle_changes.append(angle)
+            
+            speed_curr = math.hypot(*vec_curr)
+            speed_prev = math.hypot(*vec_prev)
+            speed_changes.append(abs(speed_curr - speed_prev))
+    
+    avg_ar_change = np.mean(ar_changes) if ar_changes else 0
+    avg_angle_change = np.mean(angle_changes) if angle_changes else 0
+    avg_speed_change = np.mean(speed_changes) if speed_changes else 0
+    
+    abnormal_conditions = [
+        avg_ar_change > AR_CHANGE_THRESH and max(ar_changes) > 2.0,
+        avg_angle_change > ANGLE_CHANGE_THRESH and max(angle_changes) > 80,
+        avg_speed_change > SPEED_CHANGE_THRESH and max(speed_changes) > 20,
+        any(sc > 25 for sc in speed_changes)  
+    ]
+    
+    return any(abnormal_conditions)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    results = model.track(
+        frame, 
+        persist=True, 
+        conf=MIN_CONFIDENCE,
+        iou=0.5,
+        classes=VEHICLE_CLASSES,
+        verbose=False,
+        tracker="botsort.yaml"
+    )
+
+    current_frame_boxes = {}
+    current_collisions = set()
+
+    if results[0].boxes.id is not None:
+        boxes = results[0].boxes.xyxy.cpu().numpy()
+        ids = results[0].boxes.id.int().cpu().tolist()
+        clss = results[0].boxes.cls.cpu().tolist()
+        confs = results[0].boxes.conf.cpu().tolist()
+
+        for i, (box1, tid1, cls1) in enumerate(zip(boxes, ids, clss)):
+            for j, (box2, tid2, cls2) in enumerate(zip(boxes[i+1:], ids[i+1:], clss[i+1:])):
+                if calculate_iou(box1, box2) > COLLISION_IOU_THRESH:
+                    collision_pairs.add(frozenset({tid1, tid2}))
+                    current_collisions.update({tid1, tid2})
+
+        for box, tid, cls, conf in zip(boxes, ids, clss, confs):
+            missed_frames[tid] = 0
+            
+            prev_boxes[tid].append(box)
+            smoothed_box = smooth_boxes(box, prev_boxes[tid])
+            x1, y1, x2, y2 = map(int, smoothed_box)
+            current_frame_boxes[tid] = (x1, y1, x2, y2)
+
+            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+            track_history[tid].append((cx, cy))
+            track_frames[tid] += 1
+
+            if track_frames[tid] < MIN_TRACK_FRAMES:
+                continue
+
+            is_abnormal = False
+            if tid in current_collisions:
+                is_abnormal = True
+                abnormal_count[tid] += 2  
+            else:
+                is_abnormal = check_abnormal_movement(tid, smoothed_box, prev_boxes[tid])
+                if is_abnormal:
+                    abnormal_count[tid] += 1
+                else:
+                    abnormal_count[tid] = max(0, abnormal_count[tid] - 1)
+            
+            if abnormal_count[tid] >= ACCIDENT_THRESHOLD:
+                if tid not in counted_accidents:
+                    accident_count += 1
+                    counted_accidents.add(tid)
+                    cooldown_frames[tid] = 0
+                accident_ids.add(tid)
+            elif tid in accident_ids:
+                cooldown_frames[tid] += 1
+                if cooldown_frames[tid] > 30:  
+                    accident_ids.remove(tid)
+                    abnormal_count[tid] = 0
+
+            if tid in accident_ids:
+                color = ACCIDENT_COLOR
+                status = "ACCIDENT!"
+            elif tid in current_collisions:
+                color = WARNING_COLOR
+                status = "COLLISION!"
+            elif is_abnormal:
+                color = WARNING_COLOR
+                status = "WARNING!"
+            else:
+                color = BOX_COLOR
+                status = ""
+            
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+            
+            label = f"{status}{model.names[int(cls)]} {conf:.2f}"
+            (lw, lh), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)
+            cv2.rectangle(frame, (x1, y1 - lh - 10), (x1 + lw, y1), (0, 0, 0), -1)
+            cv2.putText(frame, label, (x1, y1 - 10), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+
+            pts = np.array(track_history[tid], dtype=np.int32).reshape((-1, 1, 2))
+            if len(pts) > 1:
+                cv2.polylines(frame, [pts], False, (255, 0, 0), 1)
+
+            if len(track_history[tid]) >= 2 and tid not in counted_ids:
+                prev_cy = track_history[tid][-2][1]
+                if (prev_cy < middle_line_y <= cy) or (prev_cy > middle_line_y >= cy):
+                    vehicle_count += 1
+                    counted_ids.add(tid)
+                    cv2.circle(frame, (cx, cy), 8, (0, 0, 255), -1)
+
+    for tid in list(track_history.keys()):
+        if tid not in current_frame_boxes:
+            missed_frames[tid] += 1
+            if missed_frames[tid] > MAX_MISSED_FRAMES:
+                track_history.pop(tid, None)
+                prev_boxes.pop(tid, None)
+                abnormal_count.pop(tid, None)
+                if tid in accident_ids:
+                    accident_ids.remove(tid)
+                if tid in counted_ids:
+                    counted_ids.remove(tid)
+            elif tid in prev_boxes and prev_boxes[tid]:
+                last_box = prev_boxes[tid][-1]
+                x1, y1, x2, y2 = map(int, last_box)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (200, 200, 200), 1)
+
+    cv2.line(frame, (0, middle_line_y), (frame_width, middle_line_y), LINE_COLOR, 2)
+    
+    cv2.putText(frame, f"Vehicles: {vehicle_count}", (20, 50),
+                cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+    cv2.putText(frame, f"Accidents: {accident_count}", (20, 90),
+                cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
+    
+    debug_info = f"Active Tracks: {len(track_history)} | Current Collisions: {len(current_collisions)}"
+    cv2.putText(frame, debug_info, (20, frame_height - 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+    
+    cv2.imshow("Enhanced Accident Detection System", frame)
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()
