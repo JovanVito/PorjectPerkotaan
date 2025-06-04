@@ -4,13 +4,197 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Sistem CCTV</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS yang digabungkan */
+        body.auth-page-body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f7f6; /* Contoh warna background */
+            margin: 0;
+            padding: 20px; /* Tambahkan padding agar konten tidak menempel di tepi layar kecil */
+            box-sizing: border-box;
+        }
+
+        .auth-container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px; /* Sedikit lebih lebar untuk form sign up jika perlu */
+            animation: fadeInSlideUp 0.7s ease-out forwards;
+            opacity: 0; /* Mulai transparan untuk animasi fade-in */
+        }
+
+        @keyframes fadeInSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-logo-container h3 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            animation: textFocusIn 1s cubic-bezier(0.550, 0.085, 0.680, 0.530) 0.3s both;
+        }
+
+        @keyframes textFocusIn {
+          0% {
+            filter: blur(12px);
+            opacity: 0;
+          }
+          100% {
+            filter: blur(0px);
+            opacity: 1;
+          }
+        }
+
+        h2 { /* Styling untuk "Buat Akun Baru" */
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .input-group {
+            margin-bottom: 18px; /* Sedikit kurangi margin untuk form yang lebih panjang */
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 7px;
+            color: #555;
+            font-size: 0.9em;
+            transition: color 0.3s ease-in-out, font-weight 0.3s ease-in-out;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .input-group input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+            outline: none;
+        }
+
+        .input-group.focused label {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745; /* Warna hijau untuk tombol Sign Up, sesuaikan jika perlu */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .auth-button:hover {
+            background-color: #218838; /* Warna hijau lebih gelap saat hover */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Styling untuk pesan error dan sukses */
+        .error-message, .success-message {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .error-message {
+            color: #721c24; /* Warna teks error */
+            background-color: #f8d7da; /* Background error */
+            border: 1px solid #f5c6cb; /* Border error */
+        }
+
+        .success-message {
+            color: #155724; /* Warna teks sukses */
+            background-color: #d4edda; /* Background sukses */
+            border: 1px solid #c3e6cb; /* Border sukses */
+        }
+
+        /* Animasi untuk pesan error */
+        .error-message.show-error {
+            display: block !important;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        /* Animasi sederhana untuk pesan sukses (misalnya fade in) */
+        .success-message.show-success {
+            display: block !important;
+            animation: fadeInSimple 0.5s ease-out;
+        }
+
+        @keyframes fadeInSimple {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+
+        .auth-links {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .auth-links a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-links p {
+            margin-top: 10px;
+            color: #555;
+        }
+    </style>
 </head>
 <body class="auth-page-body">
     <div class="auth-container">
-        <form id="signupForm"> <h2>Buat Akun Baru</h2>
+        <form id="signupForm">
+            <h2>Buat Akun Baru</h2>
             <div class="auth-logo-container">
-                 <h3>Sistem Pemantau CCTV</h3>
+                <h3>Sistem Pemantau CCTV</h3>
             </div>
             <div class="input-group">
                 <label for="fullname">Nama Lengkap</label>
@@ -32,7 +216,9 @@
                 <label for="confirm-password">Konfirmasi Password</label>
                 <input type="password" id="confirm-password" name="confirm_password" required>
             </div>
-            <p id="signupError" class="error-message" style="display:none; color:red; text-align:center; margin-bottom:10px;"></p> <p id="signupSuccess" class="success-message" style="display:none; color:green; text-align:center; margin-bottom:10px;"></p> <button type="submit" class="auth-button">Sign Up</button>
+            <p id="signupError" class="error-message" style="display:none;"></p>
+            <p id="signupSuccess" class="success-message" style="display:none;"></p>
+            <button type="submit" class="auth-button">Sign Up</button>
             <div class="auth-links">
                 <p>Sudah punya akun? <a href="login_page.html">Login di sini</a></p>
             </div>
