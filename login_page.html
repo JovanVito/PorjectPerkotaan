@@ -4,14 +4,168 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistem CCTV</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS yang digabungkan dari style.css */
+        body.auth-page-body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f7f6; /* Contoh warna background */
+            margin: 0;
+            padding: 20px; /* Tambahkan padding agar konten tidak menempel di tepi layar kecil */
+            box-sizing: border-box;
+        }
+
+        .auth-container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px; /* Atur lebar maksimum form */
+            animation: fadeInSlideUp 0.7s ease-out forwards;
+            opacity: 0; /* Mulai transparan untuk animasi fade-in */
+        }
+
+        @keyframes fadeInSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-logo-container h3 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em; /* Sedikit perbesar font */
+            animation: textFocusIn 1s cubic-bezier(0.550, 0.085, 0.680, 0.530) 0.3s both;
+        }
+
+        @keyframes textFocusIn {
+          0% {
+            filter: blur(12px);
+            opacity: 0;
+          }
+          100% {
+            filter: blur(0px);
+            opacity: 1;
+          }
+        }
+
+        h2 { /* Styling untuk "Login Akun" */
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em; /* Sesuaikan ukuran font */
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative; /* Untuk positioning label jika ingin animasi lebih lanjut */
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 0.9em;
+            transition: color 0.3s ease-in-out, font-weight 0.3s ease-in-out; /* Transisi untuk label */
+        }
+
+        .input-group input {
+            width: 100%; /* Lebar penuh dikurangi padding jika box-sizing: content-box */
+            padding: 12px 10px; /* Sesuaikan padding */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Penting untuk kalkulasi width 100% yang benar */
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .input-group input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+            outline: none; /* Hapus outline default browser */
+        }
+
+        /* (Opsional) Animasi tambahan untuk label saat input group fokus */
+        .input-group.focused label {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .auth-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .error-message {
+            /* Style default sudah ada di tag <p> inline, ini untuk animasi */
+            /* display:none; color:red; text-align:center; margin-bottom:10px; */
+        }
+
+        .error-message.show-error {
+            display: block !important; /* Pastikan elemen terlihat untuk animasi */
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .auth-links {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .auth-links a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-links p {
+            margin-top: 10px;
+            color: #555;
+        }
+    </style>
 </head>
 <body class="auth-page-body">
     <div class="auth-container">
-        <form id="loginForm"> <h2>Login Akun</h2>
-            <div class="auth-logo-container">
-                <h3>Sistem Pemantau CCTV</h3>
-            </div>
+        <form id="loginForm">
+            <h2>Login Akun</h2> <div class="auth-logo-container">
+                <h3>Sistem Pemantau CCTV</h3> </div>
             <div class="input-group">
                 <label for="username">Email atau Username</label>
                 <input type="text" id="username" name="username" required>
@@ -20,7 +174,8 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <p id="loginError" class="error-message" style="display:none; color:red; text-align:center; margin-bottom:10px;"></p> <button type="submit" class="auth-button">Login</button>
+            <p id="loginError" class="error-message" style="display:none; color:red; text-align:center; margin-bottom:10px;"></p>
+            <button type="submit" class="auth-button">Login</button>
             <div class="auth-links">
                 <a href="#">Lupa Password?</a>
                 <p>Belum punya akun? <a href="signup_page.html">Sign Up di sini</a></p>
