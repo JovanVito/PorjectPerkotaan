@@ -4,40 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Kecelakaan</title>
-    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Tambahan styling langsung di sini (jika tidak mau pisah ke style.css) */
         body {
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f2f2f2;
+            opacity: 0; /* Untuk animasi fade-in body */
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
         }
 
         header {
             background-color: #2c3e50;
             color: white;
-            padding: 10px 20px;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         nav a {
             color: white;
-            margin: 0 10px;
+            margin: 0 15px;
             text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #e74c3c;
         }
 
         nav a.active {
             font-weight: bold;
             border-bottom: 2px solid #e74c3c;
+            padding-bottom: 5px;
         }
 
         .avatar {
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             margin-right: 10px;
         }
@@ -47,8 +63,55 @@
             align-items: center;
         }
 
+        .location-selector {
+            padding: 20px 30px 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .location-selector label {
+            margin-right: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .location-selector select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
         .accident-history-main {
-            padding: 30px;
+            padding: 0 30px 30px; /* Padding bawah ditambahkan */
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            margin-top: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInSlideUp 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         canvas {
@@ -56,12 +119,20 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInElement 0.7s 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeInElement {
+            to {
+                opacity: 1;
+            }
         }
 
         .riwayat-container {
             background-color: #ffffff;
             padding: 20px;
-            margin-top: 30px;
             border-radius: 8px;
             box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
         }
@@ -69,6 +140,8 @@
         .riwayat-container h3 {
             margin-bottom: 20px;
             color: #2c3e50;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
         }
 
         .riwayat-item {
@@ -78,6 +151,22 @@
             margin-bottom: 15px;
             border-radius: 6px;
             position: relative;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+
+        .riwayat-item:hover {
+            transform: translateX(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .riwayat-item h4 {
@@ -103,8 +192,8 @@
 <body>
     <header>
         <div class="user-info">
-            <img src="justin.jpg" alt="Avatar" class="avatar">
-            <span>Welcome, <span id="loggedInUserNameHeader">Nama Pengguna</span></span>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmeKyQYEV0Kd-k1o4W-7JIRizTiGVw3FbMYQ&s" alt="Avatar" class="avatar">
+            <span>Welcome, <span id="loggedInUserNameHeader">Jovan Vito Viani</span></span>
         </div>
         <nav>
             <a href="dashboard_page.html">Dashboard</a>
@@ -114,67 +203,206 @@
         </nav>
     </header>
 
+    <div class="location-selector">
+        <label for="locationSelect">Pilih Lokasi:</label>
+        <select id="locationSelect">
+            <option value="scientia-boulevard" selected>Jl. Scientia Boulevard</option>
+            <option value="gading-serpong">Gading Serpong Area</option>
+            <option value="legok">Legok Highway</option>
+            </select>
+        <span id="currentLocationInfo" style="margin-left: 15px; font-style: italic; color: #555;">(Menampilkan: Jl. Scientia Boulevard)</span>
+    </div>
+
     <main class="accident-history-main">
-        <h2>Riwayat Kecelakaan di Jl. Scientia Boulevard</h2>
+        <h2 id="pageTitle" class="section-title">Riwayat Kecelakaan di Jl. Scientia Boulevard</h2>
         <canvas id="accidentChart" width="400" height="200"></canvas>
 
         <section class="riwayat-container">
-            <h3>Detail Riwayat Kejadian</h3>
+            <h3 class="section-title">Detail Riwayat Kejadian</h3>
+            <div id="accidentList">
+                <div class="riwayat-item">
+                    <h4>Kecelakaan - 10 Mei 2025</h4>
+                    <p>Mobil menabrak separator jalan akibat pengemudi mengantuk. Tidak ada korban jiwa.</p>
+                    <time>2025-05-10 08:23</time>
+                </div>
 
-            <div class="riwayat-item">
-                <h4>Kecelakaan - 10 Mei 2025</h4>
-                <p>Mobil menabrak separator jalan akibat pengemudi mengantuk. Tidak ada korban jiwa.</p>
-                <time>2025-05-10 08:23</time>
-            </div>
+                <div class="riwayat-item">
+                    <h4>Kecelakaan - 5 Mei 2025</h4>
+                    <p>Dua motor bertabrakan saat hujan deras. 1 orang luka ringan.</p>
+                    <time>2025-05-05 17:45</time>
+                </div>
 
-            <div class="riwayat-item">
-                <h4>Kecelakaan - 5 Mei 2025</h4>
-                <p>Dua motor bertabrakan saat hujan deras. 1 orang luka ringan.</p>
-                <time>2025-05-05 17:45</time>
-            </div>
-
-            <div class="riwayat-item">
-                <h4>Kecelakaan - 28 April 2025</h4>
-                <p>Truk terguling karena kelebihan muatan. Jalan sempat ditutup selama 1 jam.</p>
-                <time>2025-04-28 14:15</time>
+                <div class="riwayat-item">
+                    <h4>Kecelakaan - 28 April 2025</h4>
+                    <p>Truk terguling karena kelebihan muatan. Jalan sempat ditutup selama 1 jam.</p>
+                    <time>2025-04-28 14:15</time>
+                </div>
             </div>
         </section>
+    </main>
 
-        <script>
-            // Data dummy riwayat kecelakaan
-            const accidentData = {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                datasets: [{
-                    label: 'Jumlah Kecelakaan',
-                    data: [5, 8, 3, 7, 10, 6, 4, 9, 7, 8, 6, 5],
-                    backgroundColor: 'rgba(231, 76, 60, 0.5)',
-                    borderColor: 'rgba(231, 76, 60, 1)',
-                    borderWidth: 1
-                }]
-            };
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userNameSpan = document.getElementById('loggedInUserNameHeader');
+            userNameSpan.textContent = 'Jovan Vito Viani';
 
-            const chartConfig = {
-                type: 'bar',
-                data: accidentData,
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+            const locationSelect = document.getElementById('locationSelect');
+            const pageTitle = document.getElementById('pageTitle');
+            const accidentChartCanvas = document.getElementById('accidentChart');
+            const accidentList = document.getElementById('accidentList');
+            const currentLocationInfo = document.getElementById('currentLocationInfo');
+            let accidentChartInstance = null;
+
+            // Data kecelakaan untuk setiap lokasi (dummy data)
+            const accidentDataByLocation = {
+                'scientia-boulevard': {
+                    title: 'Riwayat Kecelakaan di Jl. Scientia Boulevard',
+                    chartData: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                        datasets: [{
+                            label: 'Jumlah Kecelakaan',
+                            data: [5, 8, 3, 7, 10, 6],
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    history: [
+                        { date: '2025-05-10 08:23', title: 'Kecelakaan Mobil vs Separator', description: 'Pengemudi mengantuk.' },
+                        { date: '2025-05-05 17:45', title: 'Tabrakan Dua Motor', description: 'Saat hujan deras.' },
+                        { date: '2025-04-28 14:15', title: 'Truk Terguling', description: 'Kelebihan muatan.' }
+                    ]
+                },
+                'gading-serpong': {
+                    title: 'Riwayat Kecelakaan di Area Gading Serpong',
+                    chartData: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                        datasets: [{
+                            label: 'Jumlah Kecelakaan',
+                            data: [3, 5, 7, 4, 6, 8],
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    history: [
+                        { date: '2025-05-15 11:00', title: 'Tabrakan di Perempatan', description: 'Diduga melanggar lampu merah.' },
+                        { date: '2025-05-01 09:30', title: 'Motor Jatuh Sendiri', description: 'Jalan licin.' }
+                    ]
+                },
+                'legok': {
+                    title: 'Riwayat Kecelakaan di Legok Highway',
+                    chartData: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                        datasets: [{
+                            label: 'Jumlah Kecelakaan',
+                            data: [7, 6, 5, 8, 9, 4],
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    history: [
+                        { date: '2025-05-20 16:20', title: 'Kecelakaan Beruntun', description: 'Akibat rem mendadak.' },
+                        { date: '2025-05-12 13:40', title: 'Mobil Masuk Parit', description: 'Pengemudi kurang fokus.' }
+                    ]
                 }
             };
 
-            try {
-                const accidentChart = new Chart(
-                    document.getElementById('accidentChart'),
-                    chartConfig
-                );
-            } catch (error) {
-                console.error("Error membuat chart:", error);
-                document.getElementById('accidentChart').innerHTML = "<p>Gagal memuat grafik. Silakan coba lagi nanti.</p>";
+            function updatePageContent(locationKey) {
+                const locationData = accidentDataByLocation[locationKey];
+                pageTitle.textContent = locationData.title;
+                currentLocationInfo.textContent = `(Menampilkan: ${locationData.title.replace('Riwayat Kecelakaan di ', '')})`;
+
+                // Update Chart
+                if (accidentChartInstance) {
+                    accidentChartInstance.destroy();
+                }
+                const chartConfig = {
+                    type: 'bar',
+                    data: locationData.chartData,
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Jumlah Kejadian' }
+                            },
+                            x: {
+                                title: { display: true, text: 'Bulan' }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: (tooltipItems) => `Bulan: ${tooltipItems[0].label}`,
+                                    label: (context) => `Jumlah: ${context.formattedValue} Kecelakaan`
+                                }
+                            }
+                        },
+                        animation: {
+                            onComplete: () => {}
+                        }
+                    }
+                };
+                accidentChartInstance = new Chart(accidentChartCanvas, chartConfig);
+
+                // Update Riwayat List
+                accidentList.innerHTML = '';
+                locationData.history.forEach(item => {
+                    const div = document.createElement('div');
+                    div.classList.add('riwayat-item');
+                    div.innerHTML = `
+                        <h4>${item.title} - <time>${item.date.split(' ')[0]}</time></h4>
+                        <p>${item.description}</p>
+                        <time>${item.date.split(' ')[1]}</time>
+                    `;
+                    accidentList.appendChild(div);
+                });
+
+                // Re-apply animations to the new list items
+                const riwayatItems = accidentList.querySelectorAll('.riwayat-item');
+                riwayatItems.forEach((item, index) => {
+                    item.style.animationDelay = `${0.2 + index * 0.1}s`;
+                });
+
+                // Re-apply animation to the title
+                pageTitle.classList.remove('fadeInSlideUp');
+                void pageTitle.offsetWidth; // Trigger reflow to restart animation
+                pageTitle.classList.add('fadeInSlideUp');
+
+                // Re-apply animation to the history section title
+                const historyTitle = document.querySelector('.riwayat-container h3');
+                historyTitle.classList.remove('fadeInSlideUp');
+                void historyTitle.offsetWidth; // Trigger reflow
+                historyTitle.classList.add('fadeInSlideUp');
             }
-        </script>
-    </main>
+
+            // Event listener untuk perubahan pada dropdown lokasi
+            locationSelect.addEventListener('change', function() {
+                updatePageContent(this.value);
+            });
+
+            // Inisialisasi halaman dengan lokasi default
+            updatePageContent(locationSelect.value);
+
+            // Animasi awal untuk elemen-elemen
+            const mainContent = document.querySelector('.accident-history-main');
+            mainContent.style.opacity = 1;
+            mainContent.style.transform = 'translateY(0)';
+
+            const initialChart = document.getElementById('accidentChart');
+            initialChart.style.opacity = 1;
+
+            const initialHistoryTitle = document.querySelector('.riwayat-container h3');
+            initialHistoryTitle.classList.add('fadeInSlideUp');
+
+            const initialHistoryItems = document.querySelectorAll('.riwayat-item');
+            initialHistoryItems.forEach((item, index) => {
+                item.style.animationDelay = `${0.2 + index * 0.1}s`;
+                item.style.opacity = 1;
+                item.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
 </body>
 </html>
