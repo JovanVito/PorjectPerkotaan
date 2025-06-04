@@ -199,22 +199,22 @@
 </head>
 <body>
     <header>
-        <h1>Dashboard Deteksi Hot Wheels Cepat</h1>
+        <h1>Dashboard Deteksi Hotwheels</h1>
         <div class="user-info">
             <!-- Replace 'justin.jpg' with an appropriate avatar URL or use a placeholder -->
-            <img src="https://placehold.co/40x40/cccccc/000000?text=JD" alt="Avatar" class="avatar">
-            <span>Selamat Datang, <span id="loggedInUserNameHeader">Pengguna</span></span>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmeKyQYEV0Kd-k1o4W-7JIRizTiGVw3FbMYQ&s" alt="Avatar" class="avatar">
+            <span>Welcome, <span id="loggedInUserNameHeader">Pengguna</span></span>
         </div>
         <nav>
             <a href="dashboard_page.html" class="active">Dashboard</a>
             <a href="cctv_page.html">CCTV</a>
             <a href="riwayat_kecelakaan.html">Riwayat Kecelakaan</a>
             <a href="pengaturan_page.html">Pengaturan</a>
-        </nav>
+        </nav>  
         <div class="current-time" id="currentTime"></div>
     </header>
     <main class="dashboard-main">
-        <h2>Pantauan CCTV Deteksi Hot Wheels Cepat</h2>
+        <h2>Pantauan CCTV Deteksi Hotwheels</h2>
         <div class="cctv-grid">
             <div class="cctv-box">
                 <!-- This URL must match the video feed endpoint from app_hotwheels_quick.py -->
