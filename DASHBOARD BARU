@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Deteksi Hot Wheels Cepat</title>
+    <style>
+        /* Gaya dasar */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5; /* Warna latar belakang yang sama dengan dashboard_page.html */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Gaya header */
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Allow header items to wrap on smaller screens */
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            flex-grow: 1; /* Ensure title takes available space */
+            text-align: left; /* Align title to the left */
+            margin-right: 20px; /* Space between title and user info/nav */
+        }
+
+        /* Gaya info pengguna di header */
+        .user-info {
+            display: flex;
+            align-items: center;
+            color: white;
+            margin-right: 20px; /* Space between user info and nav */
+        }
+
+        .user-info .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+        }
+
+        /* Gaya navigasi */
+        nav {
+            margin-left: auto; /* Push navigation to the right */
+            display: flex; /* Use flex for navigation items */
+            flex-wrap: wrap; /* Allow nav items to wrap */
+            gap: 10px; /* Space between nav items */
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            white-space: nowrap; /* Prevent links from breaking */
+        }
+
+        nav a:hover, nav a.active {
+            background-color: #34495e;
+        }
+
+        /* Gaya untuk tampilan waktu */
+        .current-time {
+            color: white;
+            font-size: 0.9em;
+            margin-left: 20px; /* Space from navigation */
+            white-space: nowrap; /* Prevent time from breaking */
+        }
+
+        /* Gaya main content */
+        main {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align items to the top */
+            flex-wrap: wrap; /* Allow items to wrap */
+        }
+
+        /* Gaya judul utama di main content */
+        .dashboard-main h2 {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        /* Gaya grid CCTV */
+        .cctv-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+            max-width: 1000px; /* Limit grid width */
+        }
+
+        /* Gaya box CCTV individual */
+        .cctv-box {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%; /* Default for mobile */
+            max-width: 450px; /* Limit width for desktop */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cctv-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+            background-color: #000;
+            min-height: 240px; /* Minimum height for placeholder */
+        }
+
+        .cctv-info {
+            padding: 15px;
+            font-weight: bold;
+            background-color: #ecf0f1;
+            border-top: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* Gaya footer */
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 0.8em;
+            margin-top: auto;
+        }
+
+        /* Media queries for responsiveness */
+        @media (max-width: 767px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            header h1 {
+                margin-bottom: 10px;
+                text-align: center;
+                width: 100%;
+            }
+            .user-info, nav, .current-time {
+                margin-right: 0;
+                margin-bottom: 10px;
+                width: 100%;
+                justify-content: center; /* Center items for better mobile layout */
+            }
+            nav {
+                flex-direction: column; /* Stack nav links vertically on mobile */
+                align-items: center;
+            }
+            nav a {
+                width: 80%; /* Make links wider */
+                text-align: center;
+            }
+        }
+
+        @media (min-width: 768px) {
+            header {
+                padding: 15px 40px;
+            }
+
+            main {
+                padding: 30px;
+            }
+
+            .cctv-box {
+                width: calc(50% - 20px); /* Two columns for tablets */
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .cctv-box {
+                width: calc(33.333% - 20px); /* Three columns for desktops */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dashboard Deteksi Hot Wheels Cepat</h1>
+        <div class="user-info">
+            <!-- Replace 'justin.jpg' with an appropriate avatar URL or use a placeholder -->
+            <img src="https://placehold.co/40x40/cccccc/000000?text=JD" alt="Avatar" class="avatar">
+            <span>Selamat Datang, <span id="loggedInUserNameHeader">Pengguna</span></span>
+        </div>
+        <nav>
+            <a href="dashboard_page.html" class="active">Dashboard</a>
+            <a href="cctv_page.html">CCTV</a>
+            <a href="riwayat_kecelakaan.html">Riwayat Kecelakaan</a>
+            <a href="pengaturan_page.html">Pengaturan</a>
+        </nav>
+        <div class="current-time" id="currentTime"></div>
+    </header>
+    <main class="dashboard-main">
+        <h2>Pantauan CCTV Deteksi Hot Wheels Cepat</h2>
+        <div class="cctv-grid">
+            <div class="cctv-box">
+                <!-- This URL must match the video feed endpoint from app_hotwheels_quick.py -->
+                <img src="http://localhost:5003/video_feed_hotwheels_quick" alt="Live Hot Wheels Detection Feed" width="100%" style="background-color: #000; min-height: 240px;">
+                <div class="cctv-info">
+                    Analisis Live dari Kamera USB Anda (Port 5003)
+                </div>
+            </div>
+            <!-- Only one cctv-box as requested -->
+        </div>
+    </main>
+    <footer>
+        <p>Sistem Pemantauan Cepat Hot Wheels | Catatan: Ini adalah mode deteksi cepat dan tidak menggunakan model yang dilatih khusus Hot Wheels.</p>
+    </footer>
+    <script>
+        // Function to update the current time
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false // Use 24-hour format
+            };
+            document.getElementById('currentTime').textContent = now.toLocaleDateString('id-ID', options);
+        }
+
+        // Initial call to update time
+        updateCurrentTime();
+        // Update time every second
+        setInterval(updateCurrentTime, 1000);
+        // Perhatian: Logika autentikasi sekarang ditangani oleh script.js
+    </script>
+    <script src="script.js" defer></script>
+</body>
+</html>
