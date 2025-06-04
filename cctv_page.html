@@ -3,19 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar CCTV</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Daftar CCTV - Sistem Pemantau</title>
+    <style>
+        /* Reset CSS Sederhana */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            opacity: 0; /* Untuk animasi fade-in body */
+            animation: fadeInBody 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeInBody {
+            to {
+                opacity: 1;
+            }
+        }
+
+        header {
+            background-color: #2c3e50; /* Warna biru tua yang elegan */
+            color: #ecf0f1;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideDownHeader 0.6s ease-out forwards;
+        }
+
+        @keyframes slideDownHeader {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid #ecf0f1;
+            transition: transform 0.3s ease;
+        }
+
+        .user-info .avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .user-info span {
+            font-size: 0.95em;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px; /* Jarak antar link navigasi */
+        }
+
+        nav a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            position: relative; /* Untuk garis bawah animasi */
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: #3498db; /* Warna aksen */
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+
+        nav a:hover::after,
+        nav a.active::after {
+            width: 100%;
+            left: 0;
+        }
+
+        nav a:hover {
+            background-color: #34495e;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        nav a.active {
+            background-color: #3498db; /* Warna aksen untuk link aktif */
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .cctv-main {
+            padding: 30px;
+            flex-grow: 1; /* Agar main content mengisi sisa ruang */
+            animation: fadeInUpContent 0.8s 0.4s ease-out forwards; /* Delay agar setelah header */
+            opacity: 0; /* Untuk animasi */
+        }
+
+        @keyframes fadeInUpContent {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .cctv-main h2 {
+            margin-bottom: 25px;
+            font-size: 2em;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .cctv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Grid responsif */
+            gap: 25px;
+        }
+
+        .cctv-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden; /* Agar gambar tidak keluar dari border-radius */
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer; /* Menandakan bisa diklik */
+            opacity: 0; /* Untuk animasi staggered load */
+            transform: translateY(20px); /* Untuk animasi staggered load */
+            animation: popInBox 0.5s ease-out forwards;
+        }
+
+        /* Staggered animation for cctv-box (contoh untuk beberapa item pertama) */
+        .cctv-grid .cctv-box:nth-child(1) { animation-delay: 0.6s; }
+        .cctv-grid .cctv-box:nth-child(2) { animation-delay: 0.7s; }
+        .cctv-grid .cctv-box:nth-child(3) { animation-delay: 0.8s; }
+        .cctv-grid .cctv-box:nth-child(4) { animation-delay: 0.9s; }
+        .cctv-grid .cctv-box:nth-child(5) { animation-delay: 1.0s; }
+        .cctv-grid .cctv-box:nth-child(6) { animation-delay: 1.1s; }
+        /* Anda bisa menambahkan lebih banyak jika ada banyak item, atau menggunakan JS untuk delay dinamis */
+
+        @keyframes popInBox {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cctv-box:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .cctv-box img {
+            width: 100%;
+            height: 200px; /* Tinggi gambar CCTV yang konsisten */
+            object-fit: cover; /* Agar gambar terisi tanpa distorsi */
+            display: block;
+        }
+
+        .cctv-info {
+            padding: 15px;
+            font-size: 0.9em;
+            color: #555;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        /* Styling untuk status CCTV */
+        .cctv-box .unavailable-text,
+        .cctv-box .error-text,
+        .cctv-box .not-detected-text {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px; /* Sama dengan tinggi gambar */
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .cctv-box.unavailable {
+            background-color: #fcf8e3; /* Kuning muda */
+        }
+        .cctv-box.unavailable .unavailable-text {
+            color: #8a6d3b;
+        }
+
+        .cctv-box.error {
+            background-color: #f2dede; /* Merah muda */
+            animation: pulseBorderError 2s infinite ease-in-out; /* Animasi border untuk error */
+        }
+        .cctv-box.error .error-text {
+            color: #a94442;
+        }
+        @keyframes pulseBorderError {
+            0% { box-shadow: 0 4px 15px rgba(0,0,0,0.08), 0 0 0 0 rgba(220, 53, 69, 0.4); }
+            50% { box-shadow: 0 4px 15px rgba(0,0,0,0.08), 0 0 0 8px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 4px 15px rgba(0,0,0,0.08), 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+
+
+        .cctv-box.not-detected {
+            background-color: #e9ecef; /* Abu-abu muda */
+        }
+        .cctv-box.not-detected .not-detected-text {
+            color: #495057;
+        }
+
+        /* Footer sederhana jika diperlukan */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #34495e;
+            color: #ecf0f1;
+            font-size: 0.85em;
+            margin-top: auto; /* Mendorong footer ke bawah jika konten pendek */
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="user-info">
-            <img src="placeholder_avatar.png" alt="Avatar" class="avatar">
-            <span>Welcome, <span id="loggedInUserNameHeader">Nama Pengguna</span></span>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmeKyQYEV0Kd-k1o4W-7JIRizTiGVw3FbMYQ&s" alt="Avatar" class="avatar">
+            <span>Welcome, <span id="loggedInUserNameHeader">Jovan Vito Viani</span></span>
         </div>
         <nav>
-            <a href="justin.jpg">Dashboard</a>
+            <a href="http://127.0.0.1:5500/dashboard_page.html">Dashboard</a>
             <a href="cctv_page.html" class="active">CCTV</a>
-            <a href="#">Riwayat Kecelakaan</a>
+            <a href="http://127.0.0.1:5500/riwayat_kecelakaan.html">Riwayat Kecelakaan</a>
             <a href="pengaturan_page.html">Pengaturan</a>
         </nav>
     </header>
@@ -29,37 +281,69 @@
                 </div>
             </div>
             <div class="cctv-box">
-                <img src="https://www.suarasurabaya.net/wp-content/uploads/2017/09/kk192938_clip10.jpg" alt="CCTV 2">
+                <img src="https://asset.kompas.com/crops/hcLXkY0G9ZJc2E92RlY8npt3mPA=/0x0:0x0/750x500/data/photo/2020/08/24/5f438ea707dc5.jpg" alt="CCTV 2">
                 <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
+                    Perempatan Gading Serpong
                 </div>
             </div>
             <div class="cctv-box">
-                <img src="https://www.suarasurabaya.net/wp-content/uploads/2017/09/kk192938_clip10.jpg" alt="CCTV 3">
+                <img src="https://cdn-2.tstatic.net/wartakota/foto/bank/images/ilustrasi-kamera-cctv-lalu-lintas.jpg" alt="CCTV 3">
                 <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
+                    Bundaran Alam Sutera
                 </div>
             </div>
             <div class="cctv-box unavailable">
                 <div class="unavailable-text">CCTV Tidak Tersedia</div>
                 <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
+                    Jl. BSD Grand Boulevard
                 </div>
             </div>
             <div class="cctv-box error">
                 <div class="error-text">CCTV Sedang Gangguan</div>
                 <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
+                    Tol Jakarta-Merak KM 25
                 </div>
             </div>
             <div class="cctv-box not-detected">
                 <div class="not-detected-text">Kamera CCTV Tidak Terdeteksi</div>
                 <div class="cctv-info">
-                    Jl. Scientia Boulevard, Curug Sangereng
+                    Area Parkir QBig BSD City
                 </div>
             </div>
+            <div class="cctv-box">
+                <img src="https://mmc.tirto.id/image/otf/700x0/2019/10/29/tilang-elektronik-cctv-antaranews_ratio-16x9.jpg" alt="CCTV 4">
+                <div class="cctv-info">
+                    Simpang Susun Bitung
+                </div>
             </div>
+             <div class="cctv-box error">
+                <div class="error-text">CCTV Sedang Gangguan</div>
+                <div class="cctv-info">
+                    Pintu Tol Karawaci
+                </div>
+            </div>
+        </div>
     </main>
-    <script src="script.js" defer></script>
+    <script>
+        // Script JavaScript sederhana untuk interaksi dasar jika diperlukan
+        // Misalnya, mengambil nama pengguna yang login jika ada
+        document.addEventListener('DOMContentLoaded', function() {
+            const userNameSpan = document.getElementById('loggedInUserNameHeader');
+            // Contoh: Ambil nama pengguna dari localStorage atau API
+            // const loggedInUser = localStorage.getItem('userName');
+            // if (loggedInUser) {
+            //     userNameSpan.textContent = loggedInUser;
+            // } else {
+            //     userNameSpan.textContent = 'Pengguna'; // Default jika tidak ada
+            // }
+
+            // Animasi staggered untuk cctv-box jika ada banyak item dan tidak ingin menggunakan :nth-child
+            // const cctvBoxes = document.querySelectorAll('.cctv-box');
+            // cctvBoxes.forEach((box, index) => {
+            //    box.style.animationDelay = `${0.5 + index * 0.1}s`;
+            // });
+            // Jika menggunakan cara di atas, hapus :nth-child animation-delay di CSS
+        });
+    </script>
 </body>
 </html>
